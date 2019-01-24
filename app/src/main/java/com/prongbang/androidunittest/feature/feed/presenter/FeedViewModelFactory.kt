@@ -10,6 +10,7 @@ class FeedViewModelFactory(
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 
+        @Suppress("UNCHECKED_CAST")
         return FeedViewModel(getAppNameUseCase) as T
     }
 
