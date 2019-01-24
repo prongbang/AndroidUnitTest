@@ -9,10 +9,10 @@ interface FeedRepository {
 
 }
 
-class DefaultFeedRepository constructor(private val mContext: Context) : FeedRepository {
+class DefaultFeedRepository constructor(private val mContext: Context?) : FeedRepository {
 
     override fun getAppName(): String {
-        return mContext.getString(R.string.app_name)
+        return mContext?.getString(R.string.app_name) ?: ""
     }
 
 }

@@ -1,11 +1,13 @@
 package com.prongbang.androidunittest.feature.feed.domain
 
 import com.prongbang.androidunittest.core.UseCase
-import com.prongbang.androidunittest.feature.feed.data.DefaultFeedRepository
+import com.prongbang.androidunittest.feature.feed.data.FeedRepository
 
-class GetAppNameUseCase constructor(
-    private val feedRepository: DefaultFeedRepository
-)  : UseCase<String, String>() {
+abstract class GetAppNameUseCase : UseCase<String, String>()
+
+class DefaultGetAppNameUseCase constructor(
+    private val feedRepository: FeedRepository
+) : GetAppNameUseCase() {
 
     override fun execute(parameters: String): String {
 

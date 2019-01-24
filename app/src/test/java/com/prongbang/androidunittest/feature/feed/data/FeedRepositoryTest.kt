@@ -2,6 +2,7 @@ package com.prongbang.androidunittest.feature.feed.data
 
 import android.content.Context
 import com.prongbang.androidunittest.R
+import com.prongbang.androidunittest.core.RepositoryTest
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 import org.junit.Test
@@ -11,7 +12,7 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class FeedRepositoryTest {
+class FeedRepositoryTest : RepositoryTest() {
 
     @Mock
     private lateinit var context: Context

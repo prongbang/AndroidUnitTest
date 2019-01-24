@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.prongbang.androidunittest.R
+import com.prongbang.androidunittest.feature.feed.di.Injector
 
 class FeedFragment : Fragment() {
 
@@ -24,7 +25,7 @@ class FeedFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this).get(FeedViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, Injector.provideFeedViewModelFactory(context)).get(FeedViewModel::class.java)
     }
 
 }

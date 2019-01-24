@@ -3,10 +3,23 @@ package com.prongbang.androidunittest.core
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 
+interface AbstractUseCase<in P, R> {
+
+    fun invoke(parameters: P): LiveData<Result<R>>
+
+    fun executeNow(parameters: P): Result<R>
+
+    /**
+     * Override this to set the code to be executed.
+     */
+    @Throws(RuntimeException::class)
+    fun execute(parameters: P): R
+}
+
 /**
  * Executes business logic synchronously or asynchronously using a [Scheduler].
  */
-abstract class UseCase<in P, R> {
+abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
 
     private val taskScheduler = DefaultScheduler
 
@@ -17,7 +30,7 @@ abstract class UseCase<in P, R> {
      *
      */
     operator fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
-         result.value = Result.Loading
+        result.value = Result.Loading
         try {
             taskScheduler.execute {
                 try {
@@ -39,14 +52,14 @@ abstract class UseCase<in P, R> {
      *
      * @param parameters the input parameters to run the use case with
      */
-    operator fun invoke(parameters: P): LiveData<Result<R>> {
+    override operator fun invoke(parameters: P): LiveData<Result<R>> {
         val liveCallback: MutableLiveData<Result<R>> = MutableLiveData()
         this(parameters, liveCallback)
         return liveCallback
     }
 
     /** Executes the use case synchronously  */
-    fun executeNow(parameters: P): Result<R> {
+    override fun executeNow(parameters: P): Result<R> {
         return try {
             Result.Success(execute(parameters))
         } catch (e: Exception) {
@@ -54,11 +67,6 @@ abstract class UseCase<in P, R> {
         }
     }
 
-    /**
-     * Override this to set the code to be executed.
-     */
-    @Throws(RuntimeException::class)
-    abstract fun execute(parameters: P): R
 }
 
 operator fun <R> UseCase<Unit, R>.invoke(): LiveData<Result<R>> = this(Unit)
