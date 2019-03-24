@@ -1,18 +1,18 @@
 package com.prongbang.androidunittest.feature.feed.data
 
-import android.content.Context
-import com.prongbang.androidunittest.R
+import com.prongbang.androidunittest.feature.feed.model.Feed
 
 interface FeedRepository {
 
-    fun getAppName(): String
+    suspend fun getFeeds(): List<Feed>
 
 }
 
-class DefaultFeedRepository constructor(private val mContext: Context?) : FeedRepository {
+class DefaultFeedRepository constructor(private val feedDataSource: FeedDataSource) : FeedRepository {
 
-    override fun getAppName(): String {
-        return mContext?.getString(R.string.app_name) ?: ""
+    override suspend  fun getFeeds(): List<Feed> {
+
+        return feedDataSource.findAll()
     }
 
 }

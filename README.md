@@ -9,3 +9,15 @@
 4. ใช้ verify() เพื่อพิสูจน์ว่ามีการเรียกใช้เม็ทเถิดนั้นๆหรือไม่
 
 5. ถ้าจะใช้แอนโนเทชั่น (Annotation) เหล่านี้ จะต้องแอนโนเถต (Annotate) เจยูนิตคลาสด้วย @RunWith(MockitoJUnitRunner.class)
+
+## Run test
+
+```bash
+./gradlew test
+```
+
+- Test report
+
+```
+AndroidUnitTest/app/build/reports/tests/testDebugUnitTest/index.html
+```

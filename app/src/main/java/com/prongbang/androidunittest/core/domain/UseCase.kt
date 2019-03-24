@@ -1,11 +1,14 @@
-package com.prongbang.androidunittest.core
+package com.prongbang.androidunittest.core.domain
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.prongbang.androidunittest.core.Result
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 interface AbstractUseCase<in P, R> {
 
-    fun invoke(parameters: P): LiveData<Result<R>>
+    suspend fun invoke(parameters: P): LiveData<Result<R>>
 
     fun executeNow(parameters: P): Result<R>
 
@@ -21,18 +24,16 @@ interface AbstractUseCase<in P, R> {
  */
 abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
 
-    private val taskScheduler = DefaultScheduler
-
     /** Executes the use case asynchronously and places the [Result] in a MutableLiveData
      *
      * @param parameters the input parameters to run the use case with
      * @param result the MutableLiveData where the result is posted to
      *
      */
-    operator fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
+    suspend operator fun invoke(parameters: P, result: MutableLiveData<Result<R>>) {
         result.value = Result.Loading
         try {
-            taskScheduler.execute {
+            withContext(Dispatchers.IO) {
                 try {
                     execute(parameters).let { useCaseResult ->
                         result.postValue(Result.Success(useCaseResult))
@@ -52,7 +53,7 @@ abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
      *
      * @param parameters the input parameters to run the use case with
      */
-    override operator fun invoke(parameters: P): LiveData<Result<R>> {
+    override suspend operator fun invoke(parameters: P): LiveData<Result<R>> {
         val liveCallback: MutableLiveData<Result<R>> = MutableLiveData()
         this(parameters, liveCallback)
         return liveCallback
@@ -69,5 +70,5 @@ abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
 
 }
 
-operator fun <R> UseCase<Unit, R>.invoke(): LiveData<Result<R>> = this(Unit)
-operator fun <R> UseCase<Unit, R>.invoke(result: MutableLiveData<Result<R>>) = this(Unit, result)
+suspend operator fun <R> UseCase<Unit, R>.invoke(): LiveData<Result<R>> = this(Unit)
+suspend operator fun <R> UseCase<Unit, R>.invoke(result: MutableLiveData<Result<R>>) = this(Unit, result)

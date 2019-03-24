@@ -1,29 +1,37 @@
 package com.prongbang.androidunittest.feature.feed.data
 
-import android.content.Context
-import com.prongbang.androidunittest.R
-import com.prongbang.androidunittest.core.RepositoryTest
-import org.hamcrest.CoreMatchers
-import org.junit.Assert
+import com.google.common.truth.Truth.assertThat
+import com.prongbang.androidunittest.core.test.RepositoryTest
+import com.prongbang.androidunittest.feature.feed.model.Feed
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
+import org.junit.runners.JUnit4
 
-@RunWith(MockitoJUnitRunner::class)
-class FeedRepositoryTest : RepositoryTest() {
+interface FeedRepositoryScenario {
+    fun getFeed_NotEmpty_FeedList()
+}
 
-    @Mock
-    private lateinit var context: Context
+@RunWith(JUnit4::class)
+class FeedRepositoryTest : RepositoryTest(), FeedRepositoryScenario {
 
-    private val feedRepository by lazy { DefaultFeedRepository(context) }
+    @MockK
+    private lateinit var feedDataSource: FeedDataSource
+
+    private val feedRepository by lazy { DefaultFeedRepository(feedDataSource) }
 
     @Test
-    fun testGetName() {
-        Mockito.`when`(context.getString(R.string.app_name)).thenReturn("Hello mock")
+    override fun getFeed_NotEmpty_FeedList() = runBlocking {
 
-        val actual = feedRepository.getAppName()
-        Assert.assertThat(actual, CoreMatchers.`is`("Hello mock"))
+        coEvery { feedDataSource.findAll() } returns arrayListOf(Feed(1, "Title 1", "Content 1"))
+
+        val actual = feedRepository.getFeeds()
+
+        assertThat(actual[0].id).isEqualTo(1)
+        assertThat(actual[0].title).isEqualTo("Title 1")
+        assertThat(actual[0].content).isEqualTo("Content 1")
     }
+
 }

@@ -1,56 +1,48 @@
 package com.prongbang.androidunittest.feature.feed.presenter
 
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
+import com.google.common.truth.Truth.assertThat
 import com.prongbang.androidunittest.core.Result
-import com.prongbang.androidunittest.core.ViewModelTest
-import com.prongbang.androidunittest.feature.feed.domain.GetAppNameUseCase
-import com.prongbang.androidunittest.utils.LiveDataTestUtil
-import org.hamcrest.CoreMatchers
-import org.junit.Assert
+import com.prongbang.androidunittest.core.test.ViewModelTest
+import com.prongbang.androidunittest.core.livedata.testObserver
+import com.prongbang.androidunittest.feature.feed.domain.GetFeedUseCase
+import com.prongbang.androidunittest.feature.feed.model.Feed
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
+import org.junit.runners.JUnit4
 
-@RunWith(MockitoJUnitRunner::class)
-class FeedViewModelTest : ViewModelTest() {
+interface FeedViewModelScenario {
+    fun getFeed_NotEmpty_Success()
+}
 
-    @Mock
-    lateinit var useCase: GetAppNameUseCase
+@RunWith(JUnit4::class)
+class FeedViewModelTest : ViewModelTest(), FeedViewModelScenario {
 
-    private val viewModel by lazy { FeedViewModel(useCase) }
+    @MockK
+    lateinit var useCase: GetFeedUseCase
 
-    @Test
-    fun testGetAppName() {
-
-        val result = MutableLiveData<Result<String>>()
-        result.postValue(Result.Success("Hello mock"))
-        Mockito.`when`(useCase.invoke("")).thenReturn(result)
-
-        val actual = LiveDataTestUtil.getValue(viewModel.getAppName())
-
-        Assert.assertThat(getDataInResult(actual), CoreMatchers.`is`("Hello mock"))
-    }
+    private val viewModel by lazy { DefaultFeedViewModel(useCase) }
 
     @Test
-    fun testGetAppNames() {
+    override fun getFeed_NotEmpty_Success() {
 
-        Mockito.`when`(useCase.execute("")).thenReturn("Hello mock")
-
-        val actual = viewModel.getAppNames()
-
-        Assert.assertThat(actual, CoreMatchers.`is`("Hello mock"))
-    }
-
-    private fun getDataInResult(actual: Result<String>?): String? {
-        return when (actual) {
-            is Result.Success -> {
-                actual.data
-            }
-            else -> {
-                null
-            }
+        val mockFeed = arrayListOf(Feed(1, "Title 1", "Content 1"))
+        val mockResult = MediatorLiveData<Result<List<Feed>>>().apply {
+            postValue(Result.Success(mockFeed))
         }
+        every { useCase.observe() } returns mockResult
+
+        val actual = viewModel.getFeeds().testObserver().observedValues[0]
+
+        val expected = Result.Success(mockFeed)
+
+        verify { runBlocking { useCase.execute(Unit) } }
+
+        assertThat(actual).isEqualTo(expected)
     }
+
 }

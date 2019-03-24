@@ -1,22 +1,28 @@
 package com.prongbang.androidunittest.feature.feed.presenter
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import com.prongbang.androidunittest.core.Result
-import com.prongbang.androidunittest.feature.feed.domain.GetAppNameUseCase
+import com.prongbang.androidunittest.feature.feed.domain.GetFeedUseCase
+import com.prongbang.androidunittest.feature.feed.model.Feed
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class FeedViewModel constructor(
-    private val getAppNameUseCase: GetAppNameUseCase
-) : ViewModel() {
+abstract class FeedViewModel : ViewModel() {
+   abstract fun getFeeds(): LiveData<Result<List<Feed>>>
+}
 
-    fun getAppName(): LiveData<Result<String>> {
+class DefaultFeedViewModel(
+    private val getAppNameUseCase: GetFeedUseCase
+) : FeedViewModel() {
 
-        return getAppNameUseCase.invoke("")
-    }
+    override fun getFeeds(): LiveData<Result<List<Feed>>> {
 
-    fun getAppNames(): String {
+        GlobalScope.launch {
+            getAppNameUseCase.execute(Unit)
+        }
 
-        return getAppNameUseCase.execute("")
+        return getAppNameUseCase.observe()
     }
 
 }
