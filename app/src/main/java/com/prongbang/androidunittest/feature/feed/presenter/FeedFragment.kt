@@ -33,7 +33,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun getFeed() {
-        viewModel.getFeeds().observe(this, Observer {
+        viewModel.getFeeds(100).observe(this, Observer {
             Log.i("getFeed", "$it")
         })
     }

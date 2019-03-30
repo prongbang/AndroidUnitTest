@@ -12,6 +12,7 @@ import org.junit.runners.JUnit4
 
 interface FeedRepositoryScenario {
     fun getFeed_NotEmpty_FeedList()
+    fun getFeed_Id10_Feed()
 }
 
 @RunWith(JUnit4::class)
@@ -25,13 +26,27 @@ class FeedRepositoryTest : RepositoryTest(), FeedRepositoryScenario {
     @Test
     override fun getFeed_NotEmpty_FeedList() = runBlocking {
 
-        coEvery { feedDataSource.findAll() } returns arrayListOf(Feed(1, "Title 1", "Content 1"))
+        coEvery { feedDataSource.findAll(1) } returns arrayListOf(Feed(1, "Title 1", "Content 1"))
 
-        val actual = feedRepository.getFeeds()
+        val actual = feedRepository.getFeeds(1)
 
         assertThat(actual[0].id).isEqualTo(1)
         assertThat(actual[0].title).isEqualTo("Title 1")
         assertThat(actual[0].content).isEqualTo("Content 1")
+    }
+
+    @Test
+    override fun getFeed_Id10_Feed() = runBlocking {
+
+        coEvery { feedDataSource.findFeed(10) } returns Feed(10, "Title 10", "Content 10")
+
+        val actual = feedRepository.getFeed(10)!!
+
+        val expected = Feed(10, "Title 10", "Content 10")
+
+        assertThat(actual.id).isEqualTo(expected.id)
+        assertThat(actual.title).isEqualTo(expected.title)
+        assertThat(actual.content).isEqualTo(expected.content)
     }
 
 }

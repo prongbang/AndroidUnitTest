@@ -2,8 +2,8 @@ package com.prongbang.androidunittest.feature.feed.domain
 
 import com.google.common.truth.Truth.assertThat
 import com.prongbang.androidunittest.core.Result
-import com.prongbang.androidunittest.core.test.UseCaseTest
 import com.prongbang.androidunittest.core.livedata.testObserver
+import com.prongbang.androidunittest.core.test.UseCaseTest
 import com.prongbang.androidunittest.feature.feed.data.FeedRepository
 import com.prongbang.androidunittest.feature.feed.model.Feed
 import io.mockk.coEvery
@@ -29,9 +29,9 @@ class GetFeedUseCaseTest : UseCaseTest(), GetFeedUseCaseScenario {
     override fun getFeed_NotEmpty_Success() = runBlocking {
 
         val mockResponse = arrayListOf(Feed(1, "Title 1", "Content 1"))
-        coEvery { feedRepository.getFeeds() } returns mockResponse
+        coEvery { feedRepository.getFeeds(1) } returns mockResponse
 
-        useCase.execute(Unit)
+        useCase.execute(1)
 
         val actual = useCase.observe().testObserver().observedValues[0]
 

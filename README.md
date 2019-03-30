@@ -21,3 +21,15 @@
 ```
 AndroidUnitTest/app/build/reports/tests/testDebugUnitTest/index.html
 ```
+
+## Test Coverage
+
+```bash
+make jacocoTestReport
+```
+
+- Jacoco Report
+
+```
+AndroidUnitTest/app/build/jacocoReport/index.html
+```

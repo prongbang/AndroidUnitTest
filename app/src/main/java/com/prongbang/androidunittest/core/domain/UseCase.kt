@@ -10,13 +10,13 @@ interface AbstractUseCase<in P, R> {
 
     suspend fun invoke(parameters: P): LiveData<Result<R>>
 
-    fun executeNow(parameters: P): Result<R>
+    suspend fun executeNow(parameters: P): Result<R>
 
     /**
      * Override this to set the code to be executed.
      */
     @Throws(RuntimeException::class)
-    fun execute(parameters: P): R
+    suspend fun execute(parameters: P): R
 }
 
 /**
@@ -34,12 +34,8 @@ abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
         result.value = Result.Loading
         try {
             withContext(Dispatchers.IO) {
-                try {
-                    execute(parameters).let { useCaseResult ->
-                        result.postValue(Result.Success(useCaseResult))
-                    }
-                } catch (e: Exception) {
-                    result.postValue(Result.Error(e))
+                execute(parameters).let { useCaseResult ->
+                    result.postValue(Result.Success(useCaseResult))
                 }
             }
         } catch (e: Exception) {
@@ -60,7 +56,7 @@ abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
     }
 
     /** Executes the use case synchronously  */
-    override fun executeNow(parameters: P): Result<R> {
+    override suspend fun executeNow(parameters: P): Result<R> {
         return try {
             Result.Success(execute(parameters))
         } catch (e: Exception) {
@@ -69,6 +65,3 @@ abstract class UseCase<in P, R> : AbstractUseCase<P, R> {
     }
 
 }
-
-suspend operator fun <R> UseCase<Unit, R>.invoke(): LiveData<Result<R>> = this(Unit)
-suspend operator fun <R> UseCase<Unit, R>.invoke(result: MutableLiveData<Result<R>>) = this(Unit, result)
